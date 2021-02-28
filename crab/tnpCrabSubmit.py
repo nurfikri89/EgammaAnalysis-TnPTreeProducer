@@ -4,16 +4,15 @@ import os
 #
 # Example script to submit TnPTreeProducer to crab
 #
-submitVersion = "2020-06-09" # add some date here
+submitVersion = "2021-02-28" # add some date here
 doL1matching  = False
 
-defaultArgs   = ['doEleID=True','doPhoID=True','doTrigger=True']
-mainOutputDir = '/store/group/phys_egamma/tnpTuples/%s/%s' % (os.environ['USER'], submitVersion)
+defaultArgs   = ['doEleID=False','doPhoID=False','doTrigger=True']
+mainOutputDir = '/eos/user/n/nbinnorj/tnpTuples/%s' % (submitVersion)
 
 # Logging the current version of TnpTreeProducer here, such that you can find back what the actual code looked like when you were submitting
-os.system('mkdir -p /eos/cms/%s' % mainOutputDir)
-os.system('(git log -n 1;git diff) &> /eos/cms/%s/git.log' % mainOutputDir)
-
+os.system('mkdir -p %s' % mainOutputDir)
+os.system('(git log -n 1;git diff) &> %s/git.log' % mainOutputDir)
 
 #
 # Common CRAB settings
@@ -22,8 +21,8 @@ from CRABClient.UserUtilities import config
 config = config()
 
 config.General.requestName             = ''
-config.General.transferLogs            = False
-config.General.workArea                = 'crab_%s' % submitVersion
+config.General.transferLogs            = True
+config.General.workArea                = '/afs/cern.ch/work/n/nbinnorj/private/crab_projects/'
 
 config.JobType.pluginName              = 'Analysis'
 config.JobType.psetName                = '../python/TnPTreeProducer_cfg.py'
@@ -34,20 +33,35 @@ config.Data.inputDataset               = ''
 config.Data.inputDBS                   = 'global'
 config.Data.publication                = False
 config.Data.allowNonValidInputDataset  = True
-config.Site.storageSite                = 'T2_CH_CERN'
+config.Site.storageSite                = 'T3_CH_CERNBOX'
 
+whitelist_sites=[
+'T2_CH_*',
+'T2_US_*',
+'T2_UK_*',
+'T2_DE_*',
+'T2_FR_*',
+'T2_BE_*',
+'T2_HU_*',
+'T1_*',
+]
+config.Site.whitelist = whitelist_sites
 
 #
 # Certified lumis for the different eras
 #   (seems the JSON for UL2017 is slightly different from rereco 2017, it's not documented anywhere though)
 #
+# References: 
+# https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2016Analysis
+# https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2017Analysis
+# https://twiki.cern.ch/twiki/bin/view/CMS/PdmV2018Analysis
+#
 def getLumiMask(era):
-  if   era=='2016':   return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_23Sep2016ReReco_Collisions16_JSON.txt'
-  elif era=='2017':   return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON_v1.txt'
-  elif era=='2018':   return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
+  if   era=='2016':   return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions16/13TeV/ReReco/Final/Cert_271036-284044_13TeV_ReReco_07Aug2017_Collisions16_JSON.txt'
+  elif era=='2017':   return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/ReReco/Cert_294927-306462_13TeV_EOY2017ReReco_Collisions17_JSON.txt'
+  elif era=='2018':   return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/ReReco/Cert_314472-325175_13TeV_17SeptEarlyReReco2018ABC_PromptEraD_Collisions18_JSON.txt'
   elif era=='UL2017': return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions17/13TeV/Legacy_2017/Cert_294927-306462_13TeV_UL2017_Collisions17_GoldenJSON.txt'
   elif era=='UL2018': return 'https://cms-service-dqm.web.cern.ch/cms-service-dqm/CAF/certification/Collisions18/13TeV/PromptReco/Cert_314472-325175_13TeV_PromptReco_Collisions18_JSON.txt'
-
 
 #
 # Submit command
@@ -60,7 +74,7 @@ def submit(config, requestName, sample, era, json, extraParam=[]):
   isMC                        = 'SIM' in sample
   config.General.requestName  = '%s_%s' % (era, requestName)
   config.Data.inputDataset    = sample
-  config.Data.outLFNDirBase   = '%s/%s/%s/' % (mainOutputDir, era, 'mc' if isMC else 'data')
+  config.Data.outLFNDirBase   = '/store/user/nbinnorj/tnpTuples/%s/%s/%s' % (submitVersion, era, 'mc' if isMC else 'data')
   config.Data.splitting       = 'FileBased' if isMC else 'LumiBased'
   config.Data.lumiMask        = None if isMC else json
   config.Data.unitsPerJob     = 5 if isMC else 25
@@ -109,8 +123,6 @@ if isReleaseAbove(10,6):
   submitWrapper('DY_NLO',  '/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIISummer19UL17MiniAOD-106X_mc2017_realistic_v6-v2/MINIAODSIM', era)
   submitWrapper('DY_LO',   '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIISummer19UL17MiniAOD-106X_mc2017_realistic_v6-v2/MINIAODSIM', era)
 
-
-
   era       = 'UL2018'
   submitWrapper('Run2018A', '/EGamma/Run2018A-12Nov2019_UL2018-v2/MINIAOD', era)
   submitWrapper('Run2018B', '/EGamma/Run2018B-12Nov2019_UL2018-v2/MINIAOD', era)
@@ -122,13 +134,14 @@ if isReleaseAbove(10,6):
 
 else:
   era       = '2016'
-  submitWrapper('Run2016B', '/SingleElectron/Run2016B-17Jul2018_ver2-v1/MINIAOD', era)
-  submitWrapper('Run2016C', '/SingleElectron/Run2016C-17Jul2018-v1/MINIAOD', era)
-  submitWrapper('Run2016D', '/SingleElectron/Run2016D-17Jul2018-v1/MINIAOD', era)
-  submitWrapper('Run2016E', '/SingleElectron/Run2016E-17Jul2018-v1/MINIAOD', era)
-  submitWrapper('Run2016F', '/SingleElectron/Run2016F-17Jul2018-v1/MINIAOD', era)
-  submitWrapper('Run2016G', '/SingleElectron/Run2016G-17Jul2018-v1/MINIAOD', era)
-  submitWrapper('Run2016H', '/SingleElectron/Run2016H-17Jul2018-v1/MINIAOD', era)
+  submitWrapper('Run2016Bver1', '/SingleElectron/Run2016B-17Jul2018_ver1-v1/MINIAOD', era)
+  submitWrapper('Run2016Bver2', '/SingleElectron/Run2016B-17Jul2018_ver2-v1/MINIAOD', era)
+  submitWrapper('Run2016C',     '/SingleElectron/Run2016C-17Jul2018-v1/MINIAOD', era)
+  submitWrapper('Run2016D',     '/SingleElectron/Run2016D-17Jul2018-v1/MINIAOD', era)
+  submitWrapper('Run2016E',     '/SingleElectron/Run2016E-17Jul2018-v1/MINIAOD', era)
+  submitWrapper('Run2016F',     '/SingleElectron/Run2016F-17Jul2018-v1/MINIAOD', era)
+  submitWrapper('Run2016G',     '/SingleElectron/Run2016G-17Jul2018-v1/MINIAOD', era)
+  submitWrapper('Run2016H',     '/SingleElectron/Run2016H-17Jul2018-v1/MINIAOD', era)
 
   submitWrapper('DY_NLO', '/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext2-v1/MINIAODSIM', era)
   submitWrapper('DY_LO',  '/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/RunIISummer16MiniAODv3-PUMoriond17_94X_mcRun2_asymptotic_v3_ext1-v2/MINIAODSIM', era)
@@ -140,22 +153,22 @@ else:
   submitWrapper('Run2017E', '/SingleElectron/Run2017E-31Mar2018-v1/MINIAOD', era)
   submitWrapper('Run2017F', '/SingleElectron/Run2017F-31Mar2018-v1/MINIAOD', era)
 
-  submitWrapper('DY1_LO',     '/DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM', era)
-  submitWrapper('DY1_LO_ext', '/DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_v3_94X_mc2017_realistic_v14_ext1-v2/MINIAODSIM', era)
-  submitWrapper('DY_LO',      '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM', era)
-  submitWrapper('DY_LO_ext',  '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/MINIAODSIM', era)
   submitWrapper('DY_NLO',     '/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM',  era)
   submitWrapper('DY_NLO_ext', '/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/MINIAODSIM', era)
-
-
+  submitWrapper('DY_LO',      '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14-v1/MINIAODSIM', era)
+  submitWrapper('DY_LO_ext',  '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017RECOSIMstep_12Apr2018_94X_mc2017_realistic_v14_ext1-v1/MINIAODSIM', era)
+  submitWrapper('DY1_LO',     '/DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_new_pmx_94X_mc2017_realistic_v14-v1/MINIAODSIM', era)
+  submitWrapper('DY1_LO_ext', '/DY1JetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIFall17MiniAODv2-PU2017_12Apr2018_v3_94X_mc2017_realistic_v14_ext1-v2/MINIAODSIM', era)
 
   era       = '2018'
   submitWrapper('Run2018A', '/EGamma/Run2018A-17Sep2018-v2/MINIAOD', era)
   submitWrapper('Run2018B', '/EGamma/Run2018B-17Sep2018-v1/MINIAOD', era)
   submitWrapper('Run2018C', '/EGamma/Run2018C-17Sep2018-v1/MINIAOD', era)
-  submitWrapper('Run2018D', '/EGamma/Run2018D-22Jan2019-v2/MINIAOD', era)
+  # Reference: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+  # For 2018D, use Prompt GT
+  submitWrapper('Run2018D', '/EGamma/Run2018D-22Jan2019-v2/MINIAOD', era, extraParam=['GT=102X_dataRun2_Prompt_v16']) 
 
-  submitWrapper('DY',         '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', era)
   submitWrapper('DY_NLO',     '/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', era)
   submitWrapper('DY_NLO_ext', '/DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15_ext2-v1/MINIAODSIM', era)
-  submitWrapper('DY_pow',     '/DYToEE_M-50_NNPDF31_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', era)
+  submitWrapper('DY_LO',      '/DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', era)
+  submitWrapper('DY_POW',     '/DYToEE_M-50_NNPDF31_TuneCP5_13TeV-powheg-pythia8/RunIIAutumn18MiniAOD-102X_upgrade2018_realistic_v15-v1/MINIAODSIM', era)

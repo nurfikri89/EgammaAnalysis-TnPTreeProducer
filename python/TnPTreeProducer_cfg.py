@@ -20,8 +20,8 @@ def registerOption(optionName, defaultValue, description, optionType=VarParsing.
 registerOption('isMC',        False,    'Use MC instead of data')
 registerOption('isAOD',       False,    'Use AOD samples instead of miniAOD')
 registerOption('is80X',       False,    'Compatibility to run on old 80X files')
-registerOption('doEleID',     True,     'Include tree for electron ID SF')
-registerOption('doPhoID',     True,     'Include tree for photon ID SF')
+registerOption('doEleID',     False,    'Include tree for electron ID SF')
+registerOption('doPhoID',     False,    'Include tree for photon ID SF')
 registerOption('doTrigger',   True,     'Include tree for trigger SF')
 registerOption('doRECO',      False,    'Include tree for Reco SF (requires AOD)')
 registerOption('calibEn',     False,    'Use EGM smearer to calibrate photon and electron energy')
@@ -76,7 +76,8 @@ options['SUPERCLUSTER_COLL']    = "reducedEgamma:reducedSuperClusters" ### not u
 options['ELECTRON_CUTS']        = "ecalEnergy*sin(superClusterPosition.theta)>5.0 &&  (abs(-log(tan(superClusterPosition.theta/2)))<2.5)"
 options['SUPERCLUSTER_CUTS']    = "abs(eta)<2.5 &&  et>5.0"
 options['PHOTON_CUTS']          = "(abs(-log(tan(superCluster.position.theta/2)))<=2.5) && pt> 10"
-options['ELECTRON_TAG_CUTS']    = "(abs(-log(tan(superCluster.position.theta/2)))<=2.1) && !(1.4442<=abs(-log(tan(superClusterPosition.theta/2)))<=1.566) && pt >= 30.0"
+options['ELECTRON_TAG_CUTS']    = "(abs(-log(tan(superCluster.position.theta/2)))<=2.5) && !(1.4442<=abs(-log(tan(superClusterPosition.theta/2)))<=1.566) && pt >= 30.0"
+
 
 options['MAXEVENTS']            = cms.untracked.int32(varOptions.maxEvents)
 options['DoTrigger']            = varOptions.doTrigger
@@ -94,19 +95,21 @@ options['OUTPUT_FILE_NAME']     = "TnPTree_%s.root" % ("mc" if options['isMC'] e
 #################################################
 # Settings for global tag
 #################################################
+# Reference for PreUL datasets: https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVAnalysisSummaryTable
+# Use GT(Analysis) 
 if varOptions.GT == "auto":
   if options['isMC']:
-    if options['era'] == '2016':   options['GLOBALTAG'] = '94X_mcRun2_asymptotic_v3'
-    if options['era'] == '2017':   options['GLOBALTAG'] = '94X_mc2017_realistic_v17'
+    if options['era'] == '2016':   options['GLOBALTAG'] = '102X_mcRun2_asymptotic_v8'
+    if options['era'] == '2017':   options['GLOBALTAG'] = '102X_mc2017_realistic_v8'
     if options['era'] == '2018':   options['GLOBALTAG'] = '102X_upgrade2018_realistic_v21'
-    if options['era'] == 'UL2017': options['GLOBALTAG'] = '106X_dataRun2_v28'
-    if options['era'] == 'UL2018': options['GLOBALTAG'] = '106X_dataRun2_v28'
-  else:
-    if options['era'] == '2016':   options['GLOBALTAG'] = '94X_dataRun2_v10'
-    if options['era'] == '2017':   options['GLOBALTAG'] = '94X_dataRun2_v11'
-    if options['era'] == '2018':   options['GLOBALTAG'] = '102X_dataRun2_v13'
     if options['era'] == 'UL2017': options['GLOBALTAG'] = '106X_mc2017_realistic_v7'
     if options['era'] == 'UL2018': options['GLOBALTAG'] = '106X_upgrade2018_realistic_v11_L1v1'
+  else:
+    if options['era'] == '2016':   options['GLOBALTAG'] = '102X_dataRun2_v13'
+    if options['era'] == '2017':   options['GLOBALTAG'] = '102X_dataRun2_v13'
+    if options['era'] == '2018':   options['GLOBALTAG'] = '102X_dataRun2_v13'
+    if options['era'] == 'UL2017': options['GLOBALTAG'] = '106X_dataRun2_v28'
+    if options['era'] == 'UL2018': options['GLOBALTAG'] = '106X_dataRun2_v28'
 else:
   options['GLOBALTAG'] = varOptions.GT
 
@@ -114,37 +117,33 @@ else:
 # Settings for trigger tag and probe measurement
 #################################################
 if '2016' in options['era']:
-  options['TnPPATHS']           = cms.vstring("HLT_Ele27_eta2p1_WPTight_Gsf_v*")
-  options['TnPHLTTagFilters']   = cms.vstring("hltEle27erWPTightGsfTrackIsoFilter")
+  options['TnPPATHS']           = cms.vstring("HLT_Ele27_WPTight_Gsf_v*")
+  options['TnPHLTTagFilters']   = cms.vstring("hltEle27WPTightGsfTrackIsoFilter")
   options['TnPHLTProbeFilters'] = cms.vstring()
-  options['HLTFILTERSTOMEASURE']= {"passHltEle27WPTightGsf" :                           cms.vstring("hltEle27WPTightGsfTrackIsoFilter"),
-                                   "passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg1L1match" : cms.vstring("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter"),
-                                   "passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg2" :        cms.vstring("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter"),
-                                   "passHltDoubleEle33CaloIdLMWSeedLegL1match" :        cms.vstring("hltEG33CaloIdLMWPMS2Filter"),
-                                   "passHltDoubleEle33CaloIdLMWUnsLeg" :                cms.vstring("hltDiEle33CaloIdLMWPMS2UnseededFilter"),
+  options['HLTFILTERSTOMEASURE']= {
+                                   "passHLTEle27WPTightGsf" :          cms.vstring("hltEle27WPTightGsfTrackIsoFilter"),
+                                   "passHLTEle115CaloIdVTGsfTrkIdT" :  cms.vstring("hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter"),
+                                   "passHLTPhoton175" :                cms.vstring("hltEG175HEFilter"),
                                   } # Some examples, you can add multiple filters (or OR's of filters, note the vstring) here, each of them will be added to the tuple
 
 elif '2017' in options['era']:
   options['TnPPATHS']           = cms.vstring("HLT_Ele32_WPTight_Gsf_L1DoubleEG_v*")
   options['TnPHLTTagFilters']   = cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter","hltEGL1SingleEGOrFilter")
   options['TnPHLTProbeFilters'] = cms.vstring()
-  options['HLTFILTERSTOMEASURE']= {"passHltEle32DoubleEGWPTightGsf" :                   cms.vstring("hltEle32L1DoubleEGWPTightGsfTrackIsoFilter"),
-                                   "passEGL1SingleEGOr" :                               cms.vstring("hltEGL1SingleEGOrFilter"),
-                                   "passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg1L1match" : cms.vstring("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter"),
-                                   "passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg2" :        cms.vstring("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter"),
-                                   "passHltDoubleEle33CaloIdLMWSeedLegL1match" :        cms.vstring("hltEle33CaloIdLMWPMS2Filter"),
-                                   "passHltDoubleEle33CaloIdLMWUnsLeg" :                cms.vstring("hltDiEle33CaloIdLMWPMS2UnseededFilter"),
+  options['HLTFILTERSTOMEASURE']= {
+                                   "passHLTEle35WPTightGsf" :          cms.vstring("hltEle35noerWPTightGsfTrackIsoFilter"),
+                                   "passHLTEle115CaloIdVTGsfTrkIdT" :  cms.vstring("hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter"),
+                                   "passHLTPhoton200" :                cms.vstring("hltEG200HEFilter"),
                                   }
 
 elif '2018'  in options['era']:
   options['TnPPATHS']           = cms.vstring("HLT_Ele32_WPTight_Gsf_v*")
   options['TnPHLTTagFilters']   = cms.vstring("hltEle32WPTightGsfTrackIsoFilter")
   options['TnPHLTProbeFilters'] = cms.vstring()
-  options['HLTFILTERSTOMEASURE']= {"passHltEle32WPTightGsf" :                           cms.vstring("hltEle32WPTightGsfTrackIsoFilter"),
-                                   "passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg1L1match" : cms.vstring("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg1Filter"),
-                                   "passHltEle23Ele12CaloIdLTrackIdLIsoVLLeg2" :        cms.vstring("hltEle23Ele12CaloIdLTrackIdLIsoVLTrackIsoLeg2Filter"),
-                                   "passHltDoubleEle33CaloIdLMWSeedLegL1match" :        cms.vstring("hltEle33CaloIdLMWPMS2Filter"),
-                                   "passHltDoubleEle33CaloIdLMWUnsLeg" :                cms.vstring("hltDiEle33CaloIdLMWPMS2UnseededFilter"),
+  options['HLTFILTERSTOMEASURE']= {
+                                   "passHLTEle32WPTightGsf" :          cms.vstring("hltEle32WPTightGsfTrackIsoFilter"),
+                                   "passHLTEle115CaloIdVTGsfTrkIdT" :  cms.vstring("hltEle115CaloIdVTGsfTrkIdTGsfDphiFilter"),
+                                   "passHLTPhoton200" :                cms.vstring("hltEG200HEFilter"),
                                   }
 
 # Apply L1 matching (using L1Threshold) when flag contains "L1match" in name

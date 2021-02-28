@@ -7,11 +7,11 @@ import FWCore.ParameterSet.Config as cms
 from EgammaAnalysis.TnPTreeProducer.cmssw_version import isReleaseAbove
 
 ZVariablesToStore = cms.PSet(
-    eta = cms.string("eta"),
+    eta    = cms.string("eta"),
     abseta = cms.string("abs(eta)"),
-    pt  = cms.string("pt"),
-    mass  = cms.string("mass"),
-    )   
+    pt     = cms.string("pt"),
+    mass   = cms.string("mass"),
+)   
 
 SCProbeVariablesToStore = cms.PSet(
     sc_eta    = cms.string("eta"),
@@ -21,7 +21,7 @@ SCProbeVariablesToStore = cms.PSet(
     sc_et     = cms.string("et"),
     sc_e      = cms.string("energy"),
     sc_tkIso  = cms.InputTag("recoEcalCandidateHelper:scTkIso"),
-    )
+)
 
 EleProbeVariablesToStore = cms.PSet(
     el_eta    = cms.string("eta"),
@@ -67,21 +67,20 @@ EleProbeVariablesToStore = cms.PSet(
     el_sieie         = cms.string("showerShape().sigmaIetaIeta"),
 
     el_5x5_circularity = cms.InputTag("eleVarHelper:5x5circularity"),
-    el_5x5_hoe       = cms.string("full5x5_hcalOverEcal()"),
+    el_5x5_hoe         = cms.string("full5x5_hcalOverEcal()"),
 
-    el_hoe           = cms.string("hadronicOverEm()"),    
-    el_hoe_bc           = cms.string("hcalOverEcalBc"),
+    el_hoe               = cms.string("hadronicOverEm()"),    
+    el_hoe_bc            = cms.string("hcalOverEcalBc"),
     el_eoverp_wES        = cms.string("(superCluster().rawEnergy+superCluster().preshowerEnergy)/gsfTrack().pMode()"),
-    el_1overEminus1overP        = cms.string("abs(1-eSuperClusterOverP())/ecalEnergy()"),
+    el_1overEminus1overP = cms.string("abs(1-eSuperClusterOverP())/ecalEnergy()"),
 
     # mva id
-
-    el_nonTrigMVA80X = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
-    el_hzzMVA80X     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
-    el_noIsoMVA94X     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values"),
-    el_IsoMVA94X     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1RawValues"),
-    el_noIsoMVA94XV2     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2RawValues"),
-    el_IsoMVA94XV2     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2RawValues"),
+    # el_nonTrigMVA80X = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
+    # el_hzzMVA80X     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
+    # el_noIsoMVA94X   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values"),
+    # el_IsoMVA94X     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1RawValues"),
+    el_noIsoMVA94XV2 = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2RawValues"),
+    el_IsoMVA94XV2   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2RawValues"),
 
      
     #isolation
@@ -107,14 +106,14 @@ EleProbeVariablesToStore = cms.PSet(
     el_tk_pt        = cms.string("gsfTrack().ptMode"),
     el_tk_eta       = cms.string("gsfTrack().etaMode"),
     el_tk_phi       = cms.string("gsfTrack().phiMode"),
-    el_fbrem         = cms.string("fbrem"),
-    el_mHits         = cms.InputTag("eleVarHelper:missinghits"),
-    el_gsfHits         = cms.InputTag("eleVarHelper:gsfhits"),
-    el_dz            = cms.InputTag("eleVarHelper:dz"),
-    el_dxy           = cms.InputTag("eleVarHelper:dxy"),
-    el_sip           = cms.InputTag("eleVarHelper:sip"),
-    el_3charge       = cms.string("chargeInfo().isGsfCtfScPixConsistent"),
-    el_ecalDriven    = cms.string("ecalDrivenSeed"),
+    el_fbrem        = cms.string("fbrem"),
+    el_mHits        = cms.InputTag("eleVarHelper:missinghits"),
+    el_gsfHits      = cms.InputTag("eleVarHelper:gsfhits"),
+    el_dz           = cms.InputTag("eleVarHelper:dz"),
+    el_dxy          = cms.InputTag("eleVarHelper:dxy"),
+    el_sip          = cms.InputTag("eleVarHelper:sip"),
+    el_3charge      = cms.string("chargeInfo().isGsfCtfScPixConsistent"),
+    el_ecalDriven   = cms.string("ecalDrivenSeed"),
 
     el_gsfhits        = cms.string("gsfTrack().hitPattern().trackerLayersWithMeasurement()"),
     el_gsfchi2        = cms.string("gsfTrack().normalizedChi2()"),
@@ -122,14 +121,14 @@ EleProbeVariablesToStore = cms.PSet(
     el_kfchi2         = cms.InputTag("eleVarHelper:kfchi2"),
     el_lost_hits      = cms.string("gsfTrack().lost()"),
     el_found_hits     = cms.string("gsfTrack().found()"), # sometimes called valid_hits
-    el_convVtxFitProb  = cms.InputTag("eleVarHelper:convVtxFitProb"),
+    el_convVtxFitProb = cms.InputTag("eleVarHelper:convVtxFitProb"),
 
     el_hasMatchedConversion = cms.InputTag("eleVarHelper:hasMatchedConversion"),
 
     # Track cluster matching
-    el_ep             = cms.string("eSuperClusterOverP()"),
-    el_eelepout       = cms.string("eEleClusterOverPout()"),
-    el_IoEmIop        = cms.InputTag("eleVarHelper:ioemiop"),
+    el_ep       = cms.string("eSuperClusterOverP()"),
+    el_eelepout = cms.string("eEleClusterOverPout()"),
+    el_IoEmIop  = cms.InputTag("eleVarHelper:ioemiop"),
 
     )
 
@@ -198,20 +197,20 @@ TagVariablesToStore = cms.PSet(
     sc_eta    = cms.string("-log(tan(superClusterPosition.theta/2))"),
     sc_abseta = cms.string("abs(-log(tan(superCluster.position.theta/2)))"),
 
-#    Ele_mHits         = cms.InputTag("eleVarHelper:missinghits"),
+    # Ele_mHits         = cms.InputTag("eleVarHelper:missinghits"),
     Ele_dz            = cms.InputTag("eleVarHelper:dz"),
     Ele_dxy           = cms.InputTag("eleVarHelper:dxy"),
-    el_sip           = cms.InputTag("eleVarHelper:sip"),
-    Ele_nonTrigMVA80X    = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
-    Ele_hzzMVA80X    = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
+    el_sip            = cms.InputTag("eleVarHelper:sip"),
+    # Ele_nonTrigMVA80X = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16GeneralPurposeV1Values"),
+    # Ele_hzzMVA80X     = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Spring16HZZV1Values"),
 
     Ele_trigMVA       = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values"),
 
-    Ele_noIsoMVA94X   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values"), 
-    Ele_IsoMVA94X   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values"),
+    # Ele_noIsoMVA94X   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV1Values"), 
+    # Ele_IsoMVA94X   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV1Values"),
     Ele_noIsoMVA94XV2   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17NoIsoV2Values"), 
     Ele_IsoMVA94XV2   = cms.InputTag("electronMVAValueMapProducer:ElectronMVAEstimatorRun2Fall17IsoV2Values"),
-    )
+)
 
 CommonStuffForGsfElectronProbe = cms.PSet(
     addEventVariablesInfo   =  cms.bool(True),
@@ -231,10 +230,10 @@ CommonStuffForGsfElectronProbe = cms.PSet(
 
     pairFlags     =  cms.PSet(
 #    mass60to120 = cms.string("60 < mass < 120")
-        ),
+    ),
     tagFlags       =  cms.PSet(),    
     
-    )
+)
 
 CommonStuffForPhotonProbe = CommonStuffForGsfElectronProbe.clone()
 CommonStuffForPhotonProbe.variables = cms.PSet(PhoProbeVariablesToStore)
